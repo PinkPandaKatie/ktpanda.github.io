@@ -15,11 +15,12 @@
 
       function eventText(evt) {
           let keytxt = evt.key;
+          if (keytxt == " ") keytxt = "Space";
           if (evt.which) {
               keytxt += ` (code ${evt.which}`;
-              if (32 <= evt.which && evt.which <= 126) {
+              /*if (32 <= evt.which && evt.which <= 126) {
                   keytxt += ` [${String.fromCharCode(evt.which)}]`;
-              }
+              }*/
               keytxt += ')';
           }
           if (evt.shiftKey && evt.key != 'Shift') keytxt = 'SHIFT+' + keytxt;
