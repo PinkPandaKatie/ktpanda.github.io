@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Key test</title>
+  </head>
+  <body>
+    <div id="keydown">Press any key to begin testing</div>
+    <div id="keypress">&nbsp;</div>
+    <button id="clearEvents">Clear Events</button>
+    <div id="events"></div>
+    <script type="text/javascript">
+      var keyDownDiv = document.getElementById('keydown');
+      var keyPressDiv = document.getElementById('keypress');
+      var eventsDiv = document.getElementById('events');
+
+      function eventText(evt) {
+          let keytxt = evt.key;
+          if (evt.which) {
+              keytxt += ` (code ${evt.which}`;
+              if (32 <= evt.which && evt.which <= 126) {
+                  keytxt += ` [${String.fromCharCode(evt.which)}]`;
+              }
+              keytxt += ')';
+          }
+          if (evt.shiftKey && evt.key != 'Shift') keytxt = 'SHIFT+' + keytxt;
+          if (evt.altKey && evt.key != 'Alt') keytxt = 'ALT+' + keytxt;
+          if (evt.ctrlKey && evt.key != 'Control') keytxt = 'CTRL+' + keytxt;
+          return keytxt;
+      }
+
+      function addEvent(txt) {
+          let div = document.createElement('div');
+          div.innerText = txt;
+          eventsDiv.appendChild(div);
+      }
+
+      function rpt_keydown(evt) {
+          let txt = eventText(evt);
+          keyDownDiv.innerText = `Key down: ${txt}`;
+          addEvent(txt);
+      }
+      function rpt_keypress(evt) {
+          let txt = eventText(evt);
+          keyPressDiv.innerText = `Key press: ${txt}`;
+      }
+
+      function clearEvents() {
+          eventsDiv.innerHTML = '';
+      }
+      document.addEventListener('keypress', rpt_keypress, false);
+      document.addEventListener('keydown', rpt_keydown, false);
+      document.getElementById('clearEvents').addEventListener('click', clearEvents);
+    </script>
+  </body>
+</html>
