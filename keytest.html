@@ -2,52 +2,92 @@
 <html>
   <head>
     <title>Key test</title>
+    <style>
+      body { font-family: monospace; }
+    </style>
   </head>
   <body>
     <div id="keydown">Press any key to begin testing</div>
     <div id="keypress">&nbsp;</div>
-    <button id="clearEvents">Clear Events</button>
+    <button id="clearEvents">Clear</button>
+
+    <label><input type="checkbox" id="captureAll" checked="1" /> Capture all</label>
     <div id="events"></div>
     <script type="text/javascript">
       var keyDownDiv = document.getElementById('keydown');
       var keyPressDiv = document.getElementById('keypress');
       var eventsDiv = document.getElementById('events');
+      //var showCodes = document.getElementById('showCodes');
+      var captureAll = document.getElementById('captureAll');
 
-      function eventText(evt) {
+      var lastTextElem = null;
+      var lastText = '';
+
+      function getKeyText(evt) {
           let keytxt = evt.key;
           if (keytxt == " ") keytxt = "Space";
+          if (evt.shiftKey && evt.key != 'Shift') keytxt = 'Shift+' + keytxt;
+          if (evt.altKey && evt.key != 'Alt') keytxt = 'Alt+' + keytxt;
+          if (evt.ctrlKey && evt.key != 'Control') keytxt = 'Ctrl+' + keytxt;
+          return keytxt;
+      }
+
+      function getKeyCode(evt) {
+          let keytxt = '';
           if (evt.which) {
               keytxt += ` (code ${evt.which}`;
-              /*if (32 <= evt.which && evt.which <= 126) {
+              if (32 <= evt.which && evt.which <= 126) {
                   keytxt += ` [${String.fromCharCode(evt.which)}]`;
-              }*/
+              }
               keytxt += ')';
           }
-          if (evt.shiftKey && evt.key != 'Shift') keytxt = 'SHIFT+' + keytxt;
-          if (evt.altKey && evt.key != 'Alt') keytxt = 'ALT+' + keytxt;
-          if (evt.ctrlKey && evt.key != 'Control') keytxt = 'CTRL+' + keytxt;
           return keytxt;
       }
 
       function addEvent(txt) {
-          let div = document.createElement('div');
-          div.innerText = txt;
-          eventsDiv.appendChild(div);
+          if (txt.length > 1) {
+              lastTextElem = null;
+              lastText = '';
+
+              let elem = document.createElement('span');
+              elem.innerText = ` ${txt} `;
+              eventsDiv.appendChild(elem);
+          } else {
+              lastText += txt;
+              if (!lastTextElem) {
+                  lastTextElem = document.createElement('span');
+                  eventsDiv.appendChild(lastTextElem);
+              }
+              lastTextElem.innerText = '"' + lastText + '"';
+          }
+      }
+
+      function checkPreventDefault(evt) {
+          if (captureAll.checked)
+              evt.preventDefault();
       }
 
       function rpt_keydown(evt) {
-          let txt = eventText(evt);
-          keyDownDiv.innerText = `Key down: ${txt}`;
+          let txt = getKeyText(evt);
           addEvent(txt);
+          txt += getKeyCode(evt);
+          keyDownDiv.innerText = `Key down: ${txt}`;
+          checkPreventDefault(evt);
       }
+
       function rpt_keypress(evt) {
-          let txt = eventText(evt);
+          let txt = getKeyText(evt);
+          txt += getKeyCode(evt);
           keyPressDiv.innerText = `Key press: ${txt}`;
+          checkPreventDefault(evt);
       }
 
       function clearEvents() {
+          lastTextElem = null;
+          lastText = '';
           eventsDiv.innerHTML = '';
       }
+
       document.addEventListener('keypress', rpt_keypress, false);
       document.addEventListener('keydown', rpt_keydown, false);
       document.getElementById('clearEvents').addEventListener('click', clearEvents);
